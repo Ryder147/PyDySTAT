@@ -1,5 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import sys
+sys.path.append('../')
+from calculations import puff_movement_characteristics as pmc
 
 def read_dataframe(path):
     return pd.read_csv(
@@ -11,46 +14,9 @@ def read_dataframe(path):
         index_col=False)
 
 def puff_movement(observation, modelA, modelB, modelC, part_of_max = 0.1, log = False):
-    data_frame = puff_mov_dataframe(observation, modelA, modelB, modelC, part_of_max)
+    data_frame = pmc.puff_mov_char(observation, modelA, modelB, modelC, part_of_max)
     draw_plots(observation, modelA, modelB, modelC, data_frame, log)
     return data_frame
-    
-def puff_mov_dataframe(obs, modelA, modelB, modelC, part_of_max):
-    columns = ['TOA', 'TOM', 'TOD', 'MV', 'DTA', 'DTD', 'DTR', 'DUR']
-    df = pd.DataFrame(columns = columns)
-    
-    df = add_row(df, obs, part_of_max)
-    df = add_row(df, modelA, part_of_max)
-    df = add_row(df, modelB, part_of_max)
-    df = add_row(df, modelC, part_of_max)
-    df.index = ['Observation', 'Model A', 'Model B', 'Model C']
-    
-    return df
-
-def add_row(df, values, part_of_max):
-    row_dict = {}
-    pptv_max_index = values[values.columns[3]].idxmax()
-    
-    row_dict['TOM'] = pptv_max_index    #values.iloc[pptv_max_index][0]
-    row_dict['MV'] = values.iloc[pptv_max_index][3]
-    row_dict['TOA'] = calculate_toa(values, part_of_max * row_dict['MV'], pptv_max_index)
-    row_dict['TOD'] = calculate_tom(values, part_of_max * row_dict['MV'], pptv_max_index)
-    row_dict['DTA'] = row_dict['TOM'] - row_dict['TOA']
-    row_dict['DTD'] = row_dict['TOD'] - row_dict['TOM']
-    row_dict['DTR'] = row_dict['DTA'] / row_dict['DTD']
-    row_dict['DUR'] = row_dict['DTA'] + row_dict['DTD']
-    
-    return df.append(row_dict, ignore_index = True)
-    
-def calculate_toa(values, part_of_mv, pptv_max_index):
-    for i in range(0, pptv_max_index):
-        if(values.iloc[i][3] >= part_of_mv):
-            return i    #values.iloc[i][0]
-        
-def calculate_tom(values, part_of_mv, pptv_max_index):
-    for i in range(pptv_max_index, len(values.index)):
-        if(values.iloc[i][3] <= part_of_mv):
-            return i    #values.iloc[i][0]
         
 def draw_plots(obs, modelA, modelB, modelC, puff_mov_df, log):
     plt.figure(figsize = (9,7))
