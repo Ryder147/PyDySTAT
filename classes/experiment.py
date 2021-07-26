@@ -1,23 +1,42 @@
 # -*- coding: utf-8 -*-
 
-import domain, substance, trial
+import domain, substance, trial, os.path
 
 class Experiment:
     
-    #trials_paths -> lista ze sciezkami do plikow trial
-    #sensors_paths -> lista list sciezek do plikow z sensorami
-    #sensors_paths[i][j] -> sciezka do sensora j dla triala i
-    def __init__(self, path, trials_paths, sensors_paths):
+    def __init__(self, path):
         exp_des = self.__parse_exp_input(path)
         self.experiment_name = exp_des['EXPERIMENT NAME']
-        self.sub = substance.Substance(exp_des['TRACER'], exp_des['UNIT'])
+        self.sub = substance.Substance(
+            exp_des['TRACER'],
+            exp_des['UNIT'],
+            exp_des['CAS_NUMBER'],
+            exp_des['MOLAR_MASS'],
+            exp_des['DENSITY'])
         self.__set_domain(exp_des)
-        self.__add_trials(trials_paths, sensors_paths)
+        self.__add_trials(self.__parse_trials_paths(path))
         
-    def __add_trials(self, trials_paths, sensors_paths):
+    def __add_trials(self, trials_paths):
         self.trials = []
         for i in range(0, len(trials_paths)):
-            self.trials.append(trial.Trial(trials_paths[i], sensors_paths[i]))
+            self.trials.append(trial.Trial(trials_paths[i]))
+        
+    def __parse_trials_paths(self, path):
+        file = open(path)
+        
+        line = file.readline()
+        while(line != '/* TRIALS LIST:\n'):
+            line = file.readline()
+            
+        path = os.path.dirname(path)
+        trials_paths = []
+        line = file.readline()
+        
+        while(len(line) != 0):
+            trials_paths.append(path + '\\' + line.rstrip() + '.txt')
+            line = file.readline()
+            
+        return trials_paths
         
     def __parse_exp_input(self, path):
         file = open(path)
