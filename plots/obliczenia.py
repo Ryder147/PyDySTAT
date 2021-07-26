@@ -729,8 +729,26 @@ def BoxPlot(Model,Data,Wind,n):
         else:
             j+=1
             k=0
+    
+    ax=plt.subplot()
+    
     df = pd.DataFrame(windy,columns=x)
-    boxplot = df.boxplot(column=x)    
+    
+    # ax.boxplot(np.log10(df))
+    # ax.set_yticks(np.arange(-1,2))
+    # ax.set_yticklabels(10.0**np.arange(-1,2))
+    
+    boxplot = df.boxplot(column=x)
+    boxplot.set_xlabel('m/s')
+    boxplot.set_ylabel('Cp/Co')
+    plt.xlim(0,6)
+    plt.ylim(0.1, 10)
+    
+    plt.plot([0,10],[1,1],color='black')
+    plt.plot([0,10],[2,2],color='black',linestyle='--')
+    plt.plot([0,10],[0.5,0.5],color='black',linestyle='--')
+    plt.show()
+    
     return 1
 
 
@@ -768,7 +786,7 @@ paths=['ASP01.txt','ASP01_MODEL-A.txt','ASP01_MODEL-B.txt','ASP01_MODEL-C.txt','
 #FractionalBiasFBdiagram(paths, 2, 3,0)
 #quantilpaths=['ASP01.txt','ASP01_MODEL-A.txt','ASP01_MODEL-B.txt','ASP01_MODEL-C.txt']
 #quantile_quantile_plots(quantilpaths)
-#MGandVG(paths, 1, 3,50)
+#MGandVG(paths, 2, 3,0)
 BoxPlot(Model, Data, Wind,5)
 
 
