@@ -4,6 +4,7 @@ import pandas as pd
 import math as m
 import matplotlib.pyplot as plt
 import matplotlib
+import sys
 
 def read_csv(path):
     return pd.read_csv(path, header =1, sep='\s*[;]\s*', index_col=False)
@@ -38,6 +39,11 @@ def quantile_quantile_plots(paths):
     plt.ylim(0, 1500)
     plt.xlim(0,1500)
     plt.show()
+
+
+
+
+
 
 def FractionalBiasFBdiagram(paths,sensory,modele,TH): #(tablica cieżek, liczba sensorów,liczba modeli)
     model=1
@@ -487,7 +493,7 @@ def NSD(Model, Data, TH):
     
     sredniaCp=sumaCp/ilosc
     sredniaCo=sumaCo/ilosc
-    print('srednia Co Cp ',sredniaCo,sredniaCp)
+    
     for i in range(lim):
         data=Data.iat[i,3]
         model=Model.iat[i,3]
@@ -522,7 +528,7 @@ def NRMSE(Model,Data,TH):
     ilosc=0
     lim1=Model.iloc[:,3].shape[0]
     lim2=Data.iloc[:,3].shape[0]
-    if(lim1!=lim2):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
+    if(lim1!=lim2):                        #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
         return -9 
     
     for i in range(lim):
@@ -565,31 +571,175 @@ def NRMSE(Model,Data,TH):
     NRMSE=m.sqrt(NRMSE)/qCo
     return round(NRMSE,2)
 
-# def kontrola(Model1,Data1,TH):
-#     lim1=Model1.iloc[:,3].shape[0]
-#     lim2=Data1.iloc[:,3].shape[0]
-#     tab1=[0 for i in range(10000)]      #Model
-#     licznik=0
-#     tab2=[0 for i in range(10000)]      #Data
+def Afn(Model,Data,TH):
     
-#     if(lim1!=lim2):
-#         return -9
-#     for i in range(lim1):
-#         if(Model1.iat[i,3]!=-9 & Data1.iat[i,3]!=-9):
-#             tab1[licznik]=Model1.iat[i,3]
-#             tab2[licznik]=Data1.iat[i,3]
-#             licznik+=1
-#     Model=[0 for i in range(licznik)]
-#     Data=[0 for i in range(licznik)]
-#     for i in range(licznik):
-#         Model1[]    
-                
-#     return 1
+    lim=len(Model['Modeled values'])   
+    
+    Afn=0
+    suma=0
+    data=0
+    model=0
+   
+    lim1=Model.iloc[:,3].shape[0]
+    lim2=Data.iloc[:,3].shape[0]
+    if(lim1!=lim2):                        #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
+        return -9 
+    
+    for i in range(lim):
+        data=Data.iat[i,3]
+        model=Model.iat[i,3]
+        
+        if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
+            continue
+        if(data<TH):
+            data=TH
+        if(model<TH):
+            model=TH
+        suma+=m.fabs(data-model)+(data-model)
+        
+    Afn=(1/2)*suma
+    return round(Afn,2)
+            
+def Afp(Model,Data,TH):
+    lim=len(Model['Modeled values'])   
+    
+    Afp=0
+    suma=0
+    data=0
+    model=0
+   
+    lim1=Model.iloc[:,3].shape[0]
+    lim2=Data.iloc[:,3].shape[0]
+    if(lim1!=lim2):                        #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
+        return -9 
+    
+    for i in range(lim):
+        data=Data.iat[i,3]
+        model=Model.iat[i,3]
+        
+        if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
+            continue
+        if(data<TH):
+            data=TH
+        if(model<TH):
+            model=TH
+        suma+=m.fabs(data-model)+(model-data)
+        
+    Afp=(1/2)*suma
+    return round(Afp,2)
+
+def iloczynApAo(Model,Data,TH):
+    lim=len(Model['Modeled values'])   
+    
+    ApAo=0
+    suma=0
+    data=0
+    model=0
+   
+    lim1=Model.iloc[:,3].shape[0]
+    lim2=Data.iloc[:,3].shape[0]
+    if(lim1!=lim2):                        #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
+        return -9 
+    
+    for i in range(lim):
+        data=Data.iat[i,3]
+        model=Model.iat[i,3]
+        
+        if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
+            continue
+        if(data<TH):
+            data=TH
+        if(model<TH):
+            model=TH
+        suma+=(data+model)-m.fabs(data-model)-TH
+        
+    ApAo=(1/2)*suma
+    return round(ApAo,2)
+
+def MOEfn(Model,Data,TH):
+    MOEFN=(2-FBFN(Model, Data, TH)-FBFP(Model, Data, TH))/(2+FB(Model,Data,TH))
+    return round(MOEFN,2)
+
+def MOEfp(Model,Data,TH):
+    MOEFP=(2-FBFN(Model, Data, TH)-FBFP(Model, Data, TH))/(2-FB(Model,Data,TH))    
+    return round(MOEFP,2)
+
+def MinMax(tab):
+    wmin=2**30
+    imin=0
+    wmax=-273
+    imax=0
+    for i in range(len(tab)):
+        if(tab[i]<wmin):
+            wmin=tab[i]
+            imin=i
+        if(tab[i]>wmax):
+            wmax=tab[i]
+            imax=i
+    return imin,imax
+
+def sortuj_wstaw(tab,tab1,tab2):                                 
+    n=len(tab)    
+    for x in range(1, n):
+        selected = tab[x]
+        selected1=tab1[x]
+        selected2=tab2[x]
+                              
+        y = x-1                                         
+        while y >= 0 and selected2 < tab2[y]:             
+            tab[y+1]=tab[y]
+            tab1[y+1]=tab1[y]
+            tab2[y+1] = tab2[y]                          
+            y -= 1                                     
+        
+        tab[y+1] = selected
+        tab1[y+1]=selected1
+        tab2[y+1]=selected2
+                                     
+    return tab,tab1,tab2
+
+def BoxPlot(Model,Data,Wind,n):
+    lim = len(Model['Modeled values'])
+    data=[0 for i in range(lim)]
+    model=[0 for i in range(lim)]
+    wind=[0 for i in range(lim)]
+    windy=z = [[None for j in range(n)] for i in range(40)] 
+    x=[0 for i in range(n)]
+    for i in range(lim):
+        data[i]=Data.iat[i,3]
+        model[i]=Model.iat[i,3]    
+        wind[i]=Wind.iat[i,4]
+    wmin=wind[MinMax(wind)[0]]
+    wmax=wind[MinMax(wind)[1]]
+    step=round((wmax-wmin)/(n-1),3)
+    x[0]=wmin
+    for i in range(1,n):
+        x[i]=round(x[i-1]+step,3)
+    
+    data=sortuj_wstaw(data, model, wind)[0]
+    model=sortuj_wstaw(data, model, wind)[1]
+    wind=sortuj_wstaw(data, model, wind)[2]
+    
+    j=0
+    k=0
+    for i in range(lim):
+        if(wind[i]<=x[j]):
+            windy[k][j]=model[i]/data[i]
+            k+=1
+        else:
+            j+=1
+            k=0
+    df = pd.DataFrame(windy,columns=x)
+    boxplot = df.boxplot(column=x)    
+    return 1
+
+
         
 
 
 Data= pd.read_csv('ASP01.txt', header =1, sep='\s*[;]\s*', index_col=False )             #Dane rzeczywiste 
-Model = pd.read_csv('ASP01_MODEL-C.txt', header =1, sep='\s*[;]\s*',index_col=False )   #Dane modelowe
+Model = pd.read_csv('ASP01_MODEL-A.txt', header =1, sep='\s*[;]\s*',index_col=False )   #Dane modelowe
+Wind=pd.read_csv('MS01.txt', header =1, sep='\s*[;]\s*', index_col=False )
 
 #print(Data)             sep='\s*[;]\s*'
 #print(Data.iat[0,3])
@@ -597,7 +747,7 @@ Model = pd.read_csv('ASP01_MODEL-C.txt', header =1, sep='\s*[;]\s*',index_col=Fa
 #print(Model.iloc[0:7,0:7])
 paths=['ASP01.txt','ASP01_MODEL-A.txt','ASP01_MODEL-B.txt','ASP01_MODEL-C.txt','ASP02.txt','ASP02_MODEL-A.txt','ASP02_MODEL-B.txt','ASP02_MODEL-C.txt'] 
 
-
+#print(Wind.iloc[:,4])
 #print('Współczynnik FB=  ',FB(Model,Data,50))
 #print('Współczynnik FBFN=',FBFN(Model,Data))
 #print('Współczynnik FBFP=',FBFP(Model,Data))
@@ -608,11 +758,18 @@ paths=['ASP01.txt','ASP01_MODEL-A.txt','ASP01_MODEL-B.txt','ASP01_MODEL-C.txt','
 #print('Współczynnik VG=  ', VG(Model,Data,50))
 #print('Współczynnik FACX=',FACX(Model, Data, 2,50))
 #print('Współczynnik NSD= ',NSD(Model, Data, 0))
-print('Współczynnik NRMSE=',NRMSE(Model, Data, 0))
-print('-------------------')
-FractionalBiasFBdiagram(paths, 2, 3,0)
-quantilpaths=['ASP01.txt','ASP01_MODEL-A.txt','ASP01_MODEL-B.txt','ASP01_MODEL-C.txt']
+#print('Współczynnik NRMSE=',NRMSE(Model, Data, 0))
+#print('Współczynnik Afn=  ',Afn(Model,Data,0))
+#print('Współczynnik Afp=  ',Afp(Model,Data,0))
+#print('Współczynnik MOEfn=',MOEfn(Model, Data, 0))
+#print('Współczynnik MOEfp=',MOEfp(Model, Data, 0))
+#print('Iloczyn Ap Ao =    ',iloczynApAo(Model, Data, 0))
+#print('-------------------')
+#FractionalBiasFBdiagram(paths, 2, 3,0)
+#quantilpaths=['ASP01.txt','ASP01_MODEL-A.txt','ASP01_MODEL-B.txt','ASP01_MODEL-C.txt']
 #quantile_quantile_plots(quantilpaths)
 #MGandVG(paths, 1, 3,50)
+BoxPlot(Model, Data, Wind,5)
+
 
 
