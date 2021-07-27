@@ -741,6 +741,8 @@ def BoxPlot(Model,Data,Wind,n):
     boxplot = df.boxplot(column=x)
     boxplot.set_xlabel('m/s')
     boxplot.set_ylabel('Cp/Co')
+    boxplot.set_yscale('log')
+
     plt.xlim(0,6)
     plt.ylim(0.1, 10)
     
