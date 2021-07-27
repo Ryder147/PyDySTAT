@@ -10,10 +10,10 @@ class Sensor:
         self.__setup_measurements(path)
         
     def __setup_sensor(self, sensor):
-        self.name = sensor['SENSOR']
-        self.loc = location.Location(sensor['LONGITUDE'],
-                            sensor['LATITUDE'],
-                            sensor['ELEVATION'].split()[0])
+        self.name = sensor[0]
+        self.loc = location.Location(sensor[2],
+                            sensor[1],
+                            sensor[3].split()[0])
         
     def __setup_measurements(self, path):
         self.measurement = []

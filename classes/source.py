@@ -9,10 +9,10 @@ class Source:
         self.__setup_source(source_series, path)
         
     def __setup_source(self, source, path):
-        self.name = source['SOURCE']
-        self.loc = location.Location(source['LONGITUDE'],
-                                     source['LATITUDE'],
-                                     source['ELEVATION'].split()[0])
+        self.name = source[0]
+        self.loc = location.Location(source[2],
+                                     source[1],
+                                     source[3].split()[0])
         self.device = source['METHOD/DEVICE']
         self.__parse_file(path)
     
