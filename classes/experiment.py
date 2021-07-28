@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import domain, substance, trial, os.path
+import sys, os.path
+sys.path.append('../')
+from classes import domain, substance, trial
 
 class Experiment:
     

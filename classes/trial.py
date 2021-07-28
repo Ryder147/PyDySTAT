@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import pandas as pd
-import source, sensor, meteo_station, os.path
+import sys
+sys.path.append('../')
+from classes import source, sensor, meteo_station
+import os.path
 
 class Trial:
     

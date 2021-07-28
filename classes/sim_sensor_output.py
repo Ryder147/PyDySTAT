@@ -22,6 +22,3 @@ class Sim_Sensor_Output:
             sep = "\s*[;]\s*",
             engine = 'python',
             index_col=False)
-    
-path = r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\MODEL-A\ASP01_MODEL-A.txt'
-tmp = Sim_Sensor_Output(path)

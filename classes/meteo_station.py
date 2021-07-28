@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-'
 
-import location
-import time_sequence as ts
+import sys
+sys.path.append('../')
+from classes import location, time_sequence as ts
 import pandas as pd
 
 class Meteo_Station:

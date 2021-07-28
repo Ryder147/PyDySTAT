@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import pandas as pd
-import location, time_sequence
+import sys
+sys.path.append('../')
+from classes import location, time_sequence
 
 class Source:
     
