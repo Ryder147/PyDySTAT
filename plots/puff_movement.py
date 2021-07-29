@@ -3,22 +3,15 @@ import matplotlib.pyplot as plt
 import sys
 sys.path.append('../')
 from calculations import puff_movement_characteristics as pmc
+from classes import experiment, model
 
-def read_dataframe(path):
-    return pd.read_csv(
-        path, 
-        skiprows = 1, 
-        header = 0,
-        sep = "\s*[;]\s*",
-        engine = 'python',
-        index_col=False)
 
-def puff_movement(observation, modelA, modelB, modelC, part_of_max = 0.1, log = False):
-    data_frame = pmc.puff_mov_char(observation, modelA, modelB, modelC, part_of_max)
-    draw_plots(observation, modelA, modelB, modelC, data_frame, log)
-    return data_frame
+def puff_movement(sensor_exp, sensor_output_A, sensor_output_B, sensor_output_C, part_of_max = 0.1, log = False):
+    puff_mov_char_df = pmc.puff_mov_char(sensor_exp, sensor_output_A, sensor_output_B, sensor_output_C, part_of_max)
+    draw_plots(sensor_exp, sensor_output_A, sensor_output_B, sensor_output_C, puff_mov_char_df, log)
+    return puff_mov_char_df
         
-def draw_plots(obs, modelA, modelB, modelC, puff_mov_df, log):
+def draw_plots(sensor_exp, sensor_output_A, sensor_output_B, sensor_output_C, puff_mov_df, log):
     plt.figure(figsize = (9,7))
     ax1 = plt.subplot2grid((10, 10), (0, 0), colspan=10, rowspan=9)
     ax2 = plt.subplot2grid((10, 10), (9, 0), colspan=10)
@@ -28,15 +21,15 @@ def draw_plots(obs, modelA, modelB, modelC, puff_mov_df, log):
               ['blue', 'darkblue']]
 
     if(log):
-        ax1.semilogy(obs.index, obs[obs.columns[3]], c = colors[0][0])
-        ax1.semilogy(modelA.index, modelA[modelA.columns[3]], c = colors[1][0])
-        ax1.semilogy(modelB.index, modelB[modelB.columns[3]], c = colors[2][0])
-        ax1.semilogy(modelC.index, modelC[modelC.columns[3]], c = colors[3][0])
+        ax1.semilogy(range(0, len(sensor_exp.measurement)), sensor_exp.measurement, c = colors[0][0])
+        ax1.semilogy(range(0, len(sensor_output_A.sim_values)), sensor_output_A.sim_values, c = colors[1][0])
+        ax1.semilogy(range(0, len(sensor_output_B.sim_values)), sensor_output_B.sim_values, c = colors[2][0])
+        ax1.semilogy(range(0, len(sensor_output_C.sim_values)), sensor_output_C.sim_values, c = colors[3][0])
     else:
-        ax1.plot(obs.index, obs[obs.columns[3]], c = colors[0][0])
-        ax1.plot(modelA.index, modelA[modelA.columns[3]], c = colors[1][0])
-        ax1.plot(modelB.index, modelB[modelB.columns[3]], c = colors[2][0])
-        ax1.plot(modelC.index, modelC[modelC.columns[3]], c = colors[3][0])
+        ax1.plot(range(0, len(sensor_exp.measurement)), sensor_exp.measurement, c = colors[0][0])
+        ax1.plot(range(0, len(sensor_output_A.sim_values)), sensor_output_A.sim_values, c = colors[1][0])
+        ax1.plot(range(0, len(sensor_output_B.sim_values)), sensor_output_B.sim_values, c = colors[2][0])
+        ax1.plot(range(0, len(sensor_output_C.sim_values)), sensor_output_C.sim_values, c = colors[3][0])
 
     ax2.set_xlim(ax1.get_xlim())
     ax1.get_xaxis().set_visible(False)
@@ -73,10 +66,23 @@ def draw_hbar_plot(ax, puff_mov_df, i, colors, max_h, bar_h):
     
     ax.fill(x1, y, colors[0], x2, y, colors[1])
 
-obs = read_dataframe(r'C:\Users\orgin\Desktop\studia\praktyki\DANE\BTEX\ASP02.txt')
-modelA = read_dataframe(r'C:\Users\orgin\Desktop\studia\praktyki\DANE\BTEX\ASP02_MODEL-A.txt')
-modelB = read_dataframe(r'C:\Users\orgin\Desktop\studia\praktyki\DANE\BTEX\ASP02_MODEL-B.txt')
-modelC = read_dataframe(r'C:\Users\orgin\Desktop\studia\praktyki\DANE\BTEX\ASP02_MODEL-C.txt')
+exp = experiment.Experiment(r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\BTEX\BTEX.txt')
 
-puff_mov_df = puff_movement(obs, modelA, modelB, modelC, log = True)
+modelA = model.Model('Model-A', exp)
+modelA.sims[0].add_sensor(r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\MODEL-A\ASP01_MODEL-A.txt')
+modelA.sims[0].add_sensor(r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\MODEL-A\ASP02_MODEL-A.txt')
+
+modelB = model.Model('Model-B', exp)
+modelB.sims[0].add_sensor(r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\MODEL-B\ASP01_MODEL-B.txt')
+modelB.sims[0].add_sensor(r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\MODEL-B\ASP02_MODEL-B.txt')
+
+modelC = model.Model('Model-C', exp)
+modelC.sims[0].add_sensor(r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\MODEL-C\ASP01_MODEL-C.txt')
+modelC.sims[0].add_sensor(r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\MODEL-C\ASP02_MODEL-C.txt')
+
+puff_mov_df = puff_movement(exp.trials[0].sensors[1],
+                            modelA.sims[0].sim_sensors[1],
+                            modelB.sims[0].sim_sensors[1],
+                            modelC.sims[0].sim_sensors[1],
+                            log = True)
 print(puff_mov_df)

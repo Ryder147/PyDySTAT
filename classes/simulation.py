@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-
-import sim_sensor_output, sim_input
+import sys
+sys.path.append('../')
+from classes import sim_sensor_output, sim_input
 
 class Simulation:
     

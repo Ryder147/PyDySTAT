@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import simulation, domain
+import sys
+sys.path.append('../')
+from classes import simulation, domain
 
 class Model:
     
