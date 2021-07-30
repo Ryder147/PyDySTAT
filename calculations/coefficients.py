@@ -1,31 +1,26 @@
-
-import numpy as np
-import pandas as pd
 import math as m
-import matplotlib.pyplot as plt
-import matplotlib
-
-
-
+import sys
+sys.path.append('../')
+from classes import experiment, sim_sensor_output
 
 
 #geometric variance    
-def VG(Model,Data,TH):          
-    lim = len(Model['Modeled values'])
+def VG(sensor_out_model, sensor_exp, TH):
     suma=0
-    
     data=0
     model=0
     ilosc=0
+
+    lim = len(sensor_out_model.sim_values)
+    lim_tmp = len(sensor_exp.measurement)
     
-    lim1=Model.iloc[:,3].shape[0]
-    lim2=Data.iloc[:,3].shape[0]
-    if(lim1!=lim2):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
+    if(lim != lim_tmp):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
         return -9
     
     for i in range(lim):
-        data=Data.iat[i,3]
-        model=Model.iat[i,3]
+        data = sensor_exp.measurement[i]
+        model = sensor_out_model.sim_values[i]
+        
         if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
             continue
         if(data<TH):
@@ -40,21 +35,21 @@ def VG(Model,Data,TH):
     return round(VG,2)
 
 #fraction of predictions X        
-def FACX(Model,Data,x,TH):         
-    lim=len(Model['Modeled values'])
+def FACX(sensor_out_model, sensor_exp, x, TH):         
     licznik=0
     data=0
     model=0
     wynik=0
     
-    lim1=Model.iloc[:,3].shape[0]
-    lim2=Data.iloc[:,3].shape[0]
-    if(lim1!=lim2):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
+    lim = len(sensor_out_model.sim_values)
+    lim_tmp = len(sensor_exp.measurement)
+    
+    if(lim != lim_tmp):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
         return -9
     
     for i in range(lim):
-        data=Data.iat[i,3]
-        model=Model.iat[i,3]
+        data = sensor_exp.measurement[i]
+        model = sensor_out_model.sim_values[i]
         
         if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
             continue
@@ -68,24 +63,23 @@ def FACX(Model,Data,x,TH):
         wynik=licznik/lim
     return round(wynik,2)
 
-
 #fractional bias
-def FB(Model,Data,TH):             
-    lim=len(Model['Modeled values'])
-    
+def FB(sensor_out_model, sensor_exp, TH):     
     data=0
     model=0
     ilosc=0
-    lim1=Model.iloc[:,3].shape[0]
-    lim2=Data.iloc[:,3].shape[0]
-    if(lim1!=lim2):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
+    
+    lim = len(sensor_out_model.sim_values)
+    lim_tmp = len(sensor_exp.measurement)
+    
+    if(lim != lim_tmp):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
         return -9    
     
     sCo=float(0.0)          
     sCp=float(0.0)          
     for i in range(lim):
-        data=Data.iat[i,3]
-        model=Model.iat[i,3]
+        data = sensor_exp.measurement[i]
+        model = sensor_out_model.sim_values[i]
         
         if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
             continue
@@ -104,26 +98,24 @@ def FB(Model,Data,TH):
     FB=2*(sCo-sCp)/(sCo+sCp)
     
     return round(FB, 3)
-
     
 #fractional bias false negative
-def FBFN(Model,Data,TH):           
-    
-    lim=len(Model['Modeled values']) 
+def FBFN(sensor_out_model, sensor_exp, TH):           
     suma1=0
     suma2=0
     
     data=0
     model=0
-    ilosc=0
-    lim1=Model.iloc[:,3].shape[0]
-    lim2=Data.iloc[:,3].shape[0]
-    if(lim1!=lim2):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
+    
+    lim = len(sensor_out_model.sim_values)
+    lim_tmp = len(sensor_exp.measurement)
+    
+    if(lim !=lim_tmp):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
         return -9 
     
     for i in range(lim):
-        data=Data.iat[i,3]
-        model=Model.iat[i,3]
+        data = sensor_exp.measurement[i]
+        model = sensor_out_model.sim_values[i]
         
         if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
             continue
@@ -138,22 +130,22 @@ def FBFN(Model,Data,TH):
     return round(FBFN,3)
 
 #fractional bias false positive
-def FBFP(Model,Data,TH):           
-    lim=len(Model['Modeled values'])
+def FBFP(sensor_out_model, sensor_exp, TH):           
     suma1=0
     suma2=0   
     
     data=0
     model=0
-    ilosc=0
-    lim1=Model.iloc[:,3].shape[0]
-    lim2=Data.iloc[:,3].shape[0]
-    if(lim1!=lim2):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
+    
+    lim = len(sensor_out_model.sim_values)
+    lim_tmp = len(sensor_exp.measurement)
+    
+    if(lim != lim_tmp):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
         return -9 
     
     for i in range(lim):
-        data=Data.iat[i,3]
-        model=Model.iat[i,3]
+        data = sensor_exp.measurement[i]
+        model = sensor_out_model.sim_values[i]
         
         if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
             continue
@@ -168,22 +160,23 @@ def FBFP(Model,Data,TH):
     return round(FBFP,3)
 
 #geometric mean bias
-def MG(Model,Data,TH):         
+def MG(sensor_out_model, sensor_exp, TH):         
     slnCo=0
     slnCp=0
-    lim=len(Model['Modeled values'])
     
     data=0
     model=0
     ilosc=0
-    lim1=Model.iloc[:,3].shape[0]
-    lim2=Data.iloc[:,3].shape[0]
-    if(lim1!=lim2):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
+    
+    lim = len(sensor_out_model.sim_values)
+    lim_tmp = len(sensor_exp.measurement)
+    
+    if(lim != lim_tmp):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
         return -9 
     
     for i in range(lim):
-        data=Data.iat[i,3]
-        model=Model.iat[i,3]
+        data = sensor_exp.measurement[i]
+        model = sensor_out_model.sim_values[i]
         
         if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
             continue
@@ -192,8 +185,8 @@ def MG(Model,Data,TH):
         if(model<TH):
             model=TH
             
-        slnCo+=m.log(Data.iat[i,3])
-        slnCp+=m.log(Model.iat[i,3])
+        slnCo+=m.log(data)
+        slnCp+=m.log(model)
         ilosc+=1
         
     slnCp=slnCp/ilosc
@@ -202,10 +195,8 @@ def MG(Model,Data,TH):
     MG=m.exp(slnCo-slnCp)
     return round(MG,2)
 
-
 #normalized mean square error
-def NMSE(Model, Data,TH):          
-    lim=len(Model['Modeled values'])
+def NMSE(sensor_out_model, sensor_exp, TH):          
     sCo=float(0.0)          
     sCp=float(0.0)
     suma=0
@@ -213,14 +204,16 @@ def NMSE(Model, Data,TH):
     data=0
     model=0
     ilosc=0
-    lim1=Model.iloc[:,3].shape[0]
-    lim2=Data.iloc[:,3].shape[0]
-    if(lim1!=lim2):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
+    
+    lim = len(sensor_out_model.sim_values)
+    lim_tmp = len(sensor_exp.measurement)
+    
+    if(lim != lim_tmp):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
         return -9 
     
     for i in range(lim):
-        data=Data.iat[i,3]
-        model=Model.iat[i,3]
+        data = sensor_exp.measurement[i]
+        model = sensor_out_model.sim_values[i]
         
         if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
             continue
@@ -240,23 +233,23 @@ def NMSE(Model, Data,TH):
     return round(NMSE,2)
 
 #correlation coefficient
-def R(Model,Data,TH):          
-    lim=len(Model['Modeled values'])
-    
+def R(sensor_out_model, sensor_exp, TH):
     sCo=float(0.0)          
     sCp=float(0.0)  
         
     data=0
     model=0
     ilosc=0
-    lim1=Model.iloc[:,3].shape[0]
-    lim2=Data.iloc[:,3].shape[0]
-    if(lim1!=lim2):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
+    
+    lim = len(sensor_out_model.sim_values)
+    lim_tmp = len(sensor_exp.measurement)
+    
+    if(lim != lim_tmp):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
         return -9 
     
     for i in range(lim):
-        data=Data.iat[i,3]
-        model=Model.iat[i,3]
+        data = sensor_exp.measurement[i]
+        model = sensor_out_model.sim_values[i]
         
         if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
             continue
@@ -278,14 +271,10 @@ def R(Model,Data,TH):
     data=0
     model=0
     ilosc=0
-    lim1=Model.iloc[:,3].shape[0]
-    lim2=Data.iloc[:,3].shape[0]
-    if(lim1!=lim2):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
-        return -9 
     
     for i in range(lim):
-        data=Data.iat[i,3]
-        model=Model.iat[i,3]
+        data = sensor_exp.measurement[i]
+        model = sensor_out_model.sim_values[i]
         
         if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
             continue
@@ -306,8 +295,7 @@ def R(Model,Data,TH):
     return round(R,3)
 
 # normalized standard deviation
-def NSD(Model, Data, TH):
-    lim=len(Model['Modeled values'])
+def NSD(sensor_out_model, sensor_exp, TH):
     qCp=0
     qCo=0
     sredniaCp=0
@@ -319,14 +307,16 @@ def NSD(Model, Data, TH):
     data=0
     model=0
     ilosc=0
-    lim1=Model.iloc[:,3].shape[0]
-    lim2=Data.iloc[:,3].shape[0]
-    if(lim1!=lim2):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
+    
+    lim = len(sensor_out_model.sim_values)
+    lim_tmp = len(sensor_exp.measurement)
+    
+    if(lim != lim_tmp):     #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
         return -9 
     
     for i in range(lim):
-        data=Data.iat[i,3]
-        model=Model.iat[i,3]
+        data = sensor_exp.measurement[i]
+        model = sensor_out_model.sim_values[i]
         
         if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
             continue
@@ -343,8 +333,8 @@ def NSD(Model, Data, TH):
     sredniaCo=sumaCo/ilosc
     
     for i in range(lim):
-        data=Data.iat[i,3]
-        model=Model.iat[i,3]
+        data = sensor_exp.measurement[i]
+        model = sensor_out_model.sim_values[i]
         
         if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
             continue
@@ -361,10 +351,8 @@ def NSD(Model, Data, TH):
     wynik=qCp/qCo
     return round(wynik,2)
 
-
 # normalized root mean square error
-def NRMSE(Model,Data,TH):
-    lim=len(Model['Modeled values'])
+def NRMSE(sensor_out_model, sensor_exp, TH):
     qCp=0
     qCo=0
     sredniaCp=0
@@ -372,18 +360,19 @@ def NRMSE(Model,Data,TH):
     sumaCp=0
     sumaCo=0    
     
-    
     data=0
     model=0
     ilosc=0
-    lim1=Model.iloc[:,3].shape[0]
-    lim2=Data.iloc[:,3].shape[0]
-    if(lim1!=lim2):                        #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
+    
+    lim = len(sensor_out_model.sim_values)
+    lim_tmp = len(sensor_exp.measurement)
+    
+    if(lim != lim_tmp):                        #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
         return -9 
     
     for i in range(lim):
-        data=Data.iat[i,3]
-        model=Model.iat[i,3]
+        data = sensor_exp.measurement[i]
+        model = sensor_out_model.sim_values[i]
         
         if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
             continue
@@ -401,8 +390,8 @@ def NRMSE(Model,Data,TH):
     NRMSE=0
     
     for i in range(lim):
-        data=Data.iat[i,3]
-        model=Model.iat[i,3]
+        data = sensor_exp.measurement[i]
+        model = sensor_out_model.sim_values[i]
         
         if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
             continue
@@ -420,24 +409,23 @@ def NRMSE(Model,Data,TH):
     NRMSE=NRMSE/ilosc    
     NRMSE=m.sqrt(NRMSE)/qCo
     return round(NRMSE,2)
+
 # area of ‘‘false negative’’ predictions
-def Afn(Model,Data,TH):
-    
-    lim=len(Model['Modeled values'])   
-    
+def Afn(sensor_out_model, sensor_exp, TH):
     Afn=0
     suma=0
     data=0
     model=0
    
-    lim1=Model.iloc[:,3].shape[0]
-    lim2=Data.iloc[:,3].shape[0]
-    if(lim1!=lim2):                        #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
+    lim = len(sensor_out_model.sim_values)
+    lim_tmp = len(sensor_exp.measurement)
+    
+    if(lim != lim_tmp):                        #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
         return -9 
     
     for i in range(lim):
-        data=Data.iat[i,3]
-        model=Model.iat[i,3]
+        data = sensor_exp.measurement[i]
+        model = sensor_out_model.sim_values[i]
         
         if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
             continue
@@ -449,24 +437,23 @@ def Afn(Model,Data,TH):
         
     Afn=(1/2)*suma
     return round(Afn,2)
-  
+
 # area of ‘‘false positive’’ predictions          
-def Afp(Model,Data,TH):
-    lim=len(Model['Modeled values'])   
-    
+def Afp(sensor_out_model, sensor_exp, TH):    
     Afp=0
     suma=0
     data=0
     model=0
    
-    lim1=Model.iloc[:,3].shape[0]
-    lim2=Data.iloc[:,3].shape[0]
-    if(lim1!=lim2):                        #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
+    lim = len(sensor_out_model.sim_values)
+    lim_tmp = len(sensor_exp.measurement)
+    
+    if(lim != lim_tmp):                        #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
         return -9 
     
     for i in range(lim):
-        data=Data.iat[i,3]
-        model=Model.iat[i,3]
+        data = sensor_exp.measurement[i]
+        model = sensor_out_model.sim_values[i]
         
         if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
             continue
@@ -479,22 +466,21 @@ def Afp(Model,Data,TH):
     Afp=(1/2)*suma
     return round(Afp,2)
 
-def iloczynApAo(Model,Data,TH):
-    lim=len(Model['Modeled values'])   
-    
+def iloczynApAo(sensor_out_model, sensor_exp, TH):
     ApAo=0
     suma=0
     data=0
     model=0
    
-    lim1=Model.iloc[:,3].shape[0]
-    lim2=Data.iloc[:,3].shape[0]
-    if(lim1!=lim2):                        #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
-        return -9 
+    lim = len(sensor_out_model.sim_values)
+    lim_tmp = len(sensor_exp.measurement)
+    
+    if(lim != lim_tmp):                        #sprawdzenie czy Dane rzeczywiste i modelowe są tej samej długoci
+        return -9
     
     for i in range(lim):
-        data=Data.iat[i,3]
-        model=Model.iat[i,3]
+        data = sensor_exp.measurement[i]
+        model = sensor_out_model.sim_values[i]
         
         if (data==-9 or model==-9):        #odrzucenie danych które są równe -9           
             continue
@@ -508,40 +494,40 @@ def iloczynApAo(Model,Data,TH):
     return round(ApAo,2)
 
 # figure of merit in space
-def FMS(Model,Data,TH):
-    fms=(iloczynApAo(Model,Data,TH))/(iloczynApAo(Model,Data,TH)+Afn(Model,Data,TH)+Afp(Model,Data,TH))
+def FMS(sensor_out_model, sensor_exp, TH):
+    fms=(iloczynApAo(sensor_out_model, sensor_exp, TH))/(iloczynApAo(sensor_out_model, sensor_exp, TH)+Afn(sensor_out_model, sensor_exp, TH)+Afp(sensor_out_model, sensor_exp, TH))
     return round(fms,2)
     
     return 1
 # measure of effectivness (false negative)
-def MOEfn(Model,Data,TH):
-    MOEFN=(2-FBFN(Model, Data, TH)-FBFP(Model, Data, TH))/(2+FB(Model,Data,TH))
+def MOEfn(sensor_out_model, sensor_exp, TH):
+    MOEFN=(2-FBFN(sensor_out_model, sensor_exp, TH)-FBFP(sensor_out_model, sensor_exp, TH))/(2+FB(sensor_out_model, sensor_exp, TH))
     return round(MOEFN,2)
 
 # measure of effectivness (false positive)
-def MOEfp(Model,Data,TH):
-    MOEFP=(2-FBFN(Model, Data, TH)-FBFP(Model, Data, TH))/(2-FB(Model,Data,TH))    
+def MOEfp(sensor_out_model, sensor_exp, TH):
+    MOEFP=(2-FBFN(sensor_out_model, sensor_exp, TH)-FBFP(sensor_out_model, sensor_exp, TH))/(2-FB(sensor_out_model, sensor_exp, TH))    
     return round(MOEFP,2)
 
-Data= pd.read_csv('ASP01.txt', header =1, sep='\s*[;]\s*', index_col=False )             #Dane rzeczywiste 
-Model = pd.read_csv('ASP01_MODEL-C.txt', header =1, sep='\s*[;]\s*',index_col=False )   #Dane modelowe
-Wind=pd.read_csv('MS01.txt', header =1, sep='\s*[;]\s*', index_col=False )
 
+exp = experiment.Experiment(r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\BTEX\BTEX.txt')
+sensor_exp = exp.trials[0].sensors[0]
+sensor_out_model = sim_sensor_output.Sim_Sensor_Output(r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\MODEL-C\ASP01_MODEL-C.txt')
 
-# print('Współczynnik FB=  ',FB(Model,Data,50))
-# print('Współczynnik FBFN=',FBFN(Model,Data,0))
-# print('Współczynnik FBFP=',FBFP(Model,Data,0))
-# print('Sprawdzenie FB=FBFN-FBFP= ',FBFN(Model,Data,0)-FBFP(Model,Data,0))
-# print('Współczynnik MG=  ',MG(Model,Data,0))
-# print('Współczynnik NMSE=',NMSE(Model,Data,0))
-# print('Współczynnik R=   ',R(Model,Data,0))
-# print('Współczynnik VG=  ', VG(Model,Data,50))
-# print('Współczynnik FACX=',FACX(Model, Data, 2,50))
-# print('Współczynnik NSD= ',NSD(Model, Data, 0))
-# print('Współczynnik NRMSE=',NRMSE(Model, Data, 0))
-# print('Współczynnik Afn=  ',Afn(Model,Data,0))
-# print('Współczynnik Afp=  ',Afp(Model,Data,0))
-# print('Współczynnik FMS=  ',FMS(Model, Data, 0))
-# print('Współczynnik MOEfn=',MOEfn(Model, Data, 0))
-# print('Współczynnik MOEfp=',MOEfp(Model, Data, 0))
-# print('Iloczyn Ap Ao =    ',iloczynApAo(Model, Data, 0))
+print('Współczynnik FB=  ',FB(sensor_out_model, sensor_exp, 50))
+print('Współczynnik FBFN=',FBFN(sensor_out_model, sensor_exp, 0))
+print('Współczynnik FBFP=',FBFP(sensor_out_model, sensor_exp, 0))
+print('Sprawdzenie FB=FBFN-FBFP= ',FBFN(sensor_out_model, sensor_exp, 0)-FBFP(sensor_out_model, sensor_exp, 0))
+print('Współczynnik MG=  ',MG(sensor_out_model, sensor_exp, 0))
+print('Współczynnik NMSE=',NMSE(sensor_out_model, sensor_exp, 0))
+print('Współczynnik R=   ',R(sensor_out_model, sensor_exp, 0))
+print('Współczynnik VG=  ', VG(sensor_out_model, sensor_exp, 50))
+print('Współczynnik FACX=',FACX(sensor_out_model, sensor_exp, 2,50))
+print('Współczynnik NSD= ',NSD(sensor_out_model, sensor_exp, 0))
+print('Współczynnik NRMSE=',NRMSE(sensor_out_model, sensor_exp, 0))
+print('Współczynnik Afn=  ',Afn(sensor_out_model, sensor_exp, 0))
+print('Współczynnik Afp=  ',Afp(sensor_out_model, sensor_exp, 0))
+print('Współczynnik FMS=  ',FMS(sensor_out_model, sensor_exp, 0))
+print('Współczynnik MOEfn=',MOEfn(sensor_out_model, sensor_exp, 0))
+print('Współczynnik MOEfp=',MOEfp(sensor_out_model, sensor_exp, 0))
+print('Iloczyn Ap Ao =    ',iloczynApAo(sensor_out_model, sensor_exp, 0))
