@@ -11,7 +11,7 @@ def puff_movement(sensor_exp, sensor_output_A, sensor_output_B, sensor_output_C,
     draw_plots(sensor_exp, sensor_output_A, sensor_output_B, sensor_output_C, puff_mov_char_df, log)
     return puff_mov_char_df
         
-def draw_plots(sensor_exp, sensor_output_A, sensor_output_B, sensor_output_C, puff_mov_df, log):
+def draw_plots(sensor_exp, sensor_output_A, sensor_output_B, sensor_output_C, puff_mov_df, log = False):
     plt.figure(figsize = (9,7))
     ax1 = plt.subplot2grid((10, 10), (0, 0), colspan=10, rowspan=9)
     ax2 = plt.subplot2grid((10, 10), (9, 0), colspan=10)
@@ -39,18 +39,18 @@ def draw_plots(sensor_exp, sensor_output_A, sensor_output_B, sensor_output_C, pu
     ax1.set_ylabel('Gas concentration [pptv]')
     ax1.legend(puff_mov_df.index)
     
-    draw_hbar_plots(ax2, puff_mov_df, colors)
+    __draw_hbar_plots(ax2, puff_mov_df, colors)
     plt.show()
     
-def draw_hbar_plots(ax, puff_mov_df, colors, max_h = 1.0):
+def __draw_hbar_plots(ax, puff_mov_df, colors, max_h = 1.0):
     bar_h = max_h/4
     
-    draw_hbar_plot(ax, puff_mov_df, 0, colors[0], max_h, bar_h)
-    draw_hbar_plot(ax, puff_mov_df, 1, colors[1], max_h, bar_h)
-    draw_hbar_plot(ax, puff_mov_df, 2, colors[2], max_h, bar_h)
-    draw_hbar_plot(ax, puff_mov_df, 3, colors[3], max_h, bar_h)
+    __draw_hbar_plot(ax, puff_mov_df, 0, colors[0], max_h, bar_h)
+    __draw_hbar_plot(ax, puff_mov_df, 1, colors[1], max_h, bar_h)
+    __draw_hbar_plot(ax, puff_mov_df, 2, colors[2], max_h, bar_h)
+    __draw_hbar_plot(ax, puff_mov_df, 3, colors[3], max_h, bar_h)
     
-def draw_hbar_plot(ax, puff_mov_df, i, colors, max_h, bar_h):
+def __draw_hbar_plot(ax, puff_mov_df, i, colors, max_h, bar_h):
     x1 = [puff_mov_df.iloc[i]['TOA'], 
          puff_mov_df.iloc[i]['TOA'], 
          puff_mov_df.iloc[i]['TOM'], 

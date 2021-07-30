@@ -2,12 +2,11 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import sys
-sys.path.append('../')
-from classes import experiment
 
 def draw_map(experiment, trial):
-    # do zautomatyzowania
+    # TODO
+    #   do zautomatyzowania sciaganie mapy eksperymentu
+    #   na podstawie experiment.domain
     map_im = plt.imread(r'C:\Users\orgin\Desktop\studia\praktyki\DANE_1\BTEX\map.png')
     
     exp_domain = experiment.domain
