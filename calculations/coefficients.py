@@ -503,10 +503,10 @@ def MOEfn(sensor_out_model, sensor_exp, TH):
 # measure of effectivness (false positive)
 def MOEfp(sensor_out_model, sensor_exp, TH):
     MOEFP=(2-FBFN(sensor_out_model, sensor_exp, TH)-FBFP(sensor_out_model, sensor_exp, TH))/(2-FB(sensor_out_model, sensor_exp, TH))    
-<<<<<<< Updated upstream
+#<<<<<<< Updated upstream
     return round(MOEFP,2)
-=======
-    return round(MOEFP,2)
+#=======
+ #   return round(MOEFP,2)
 
 
 # exp = experiment.Experiment(r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\BTEX\BTEX.txt')
@@ -530,4 +530,4 @@ def MOEfp(sensor_out_model, sensor_exp, TH):
 # print('Współczynnik MOEfn=',MOEfn(sensor_out_model, sensor_exp, 0))
 # print('Współczynnik MOEfp=',MOEfp(sensor_out_model, sensor_exp, 0))
 # print('Iloczyn Ap Ao =    ',iloczynApAo(sensor_out_model, sensor_exp, 0))
->>>>>>> Stashed changes
+#>>>>>>> Stashed changes

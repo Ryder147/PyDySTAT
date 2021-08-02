@@ -1,4 +1,3 @@
-
 import numpy as np
 import pandas as pd
 import math as m
@@ -13,70 +12,104 @@ from classes import trial, simulation, experiment, model
 def read_csv(path):
     return pd.read_csv(path, header =1, sep='\s*[;]\s*', index_col=False)
 
-def quantile_quantile_plots(paths):
-    Dane=read_csv(paths[0])
-    ModelA=read_csv(paths[1])
-    ModelB=read_csv(paths[2])
-    ModelC=read_csv(paths[3])
+def quantile_quantile_plots(Dane,ModelA,ModelB,ModelC):
+    
     
     
     fig = plt.figure(figsize=(10,10))
     ax1 = fig.add_subplot(221)
+    plt.ylim(0, 1500)
+    plt.xlim(0,1500)
     ax2 = fig.add_subplot(222)
+    plt.ylim(0, 1500)
+    plt.xlim(0,1500)
     ax3 = fig.add_subplot(223)
+    plt.ylim(0, 1500)
+    plt.xlim(0,1500)
     
     
-    ax1.plot(Dane[Dane.columns[3]],ModelA[ModelA.columns[3]],'ro',markersize = 2)    
-    a1= np.arange(1500)
+    ax1.plot(Dane.measurement,ModelA.sim_values,'ro',markersize = 2)    
+    a1= np.arange(-1000,1500)
     b1=a1
     ax1.plot(a1,b1,color='black')
     ax1.set_xlabel('Model-A Conc. (pptv)')
     ax1.set_ylabel('Observed Conc. (pptv)')
-    ax2.plot(Dane[Dane.columns[3]],ModelB[ModelB.columns[3]],'ro',markersize = 2,color='blue')
+    
+    ax2.plot(Dane.measurement,ModelB.sim_values,'ro',markersize = 2,color='blue')
     ax2.plot(a1,b1,color='black')
     ax2.set_xlabel('Model-B Conc. (pptv)')
     ax2.set_ylabel('Observed Conc. (pptv)')
-    ax3.plot(Dane[Dane.columns[3]],ModelC[ModelC.columns[3]],'ro',markersize = 2,color='green')
+   
+    ax3.plot(Dane.measurement,ModelC.sim_values,'ro',markersize = 2,color='green')
     ax3.plot(a1,b1,color='black')
     ax3.set_xlabel('Model-C Conc. (pptv)')
     ax3.set_ylabel('Observed Conc. (pptv)')
-    plt.ylim(0, 1500)
-    plt.xlim(0,1500)
+    
     plt.show()
 
 
 
 
 
-
-def FractionalBiasFBdiagram(paths,sensory,modele,TH): #(tablica cieżek, liczba sensorów,liczba modeli)
-    model=1
-    sensor=0
-    lim=sensory*modele
-    FBfp=[[0 for i in range(sensory)] for j in range(modele)]
-    FBfn=[[0 for i in range(sensory)] for j in range(modele)]
+#paths,sensory,modele,TH
+def FractionalBiasFBdiagram(Data,ModelA,ModelB,ModelC,TH): 
+   
+    
+    lim=3*len(Data.sensors)
+    FBfp=[[0 for i in range(len(Data.sensors))] for j in range(3)]
+    FBfn=[[0 for i in range(len(Data.sensors))] for j in range(3)]
     n=['0' for i in range(lim)]
     
-   
-    index=0
     x=0
     y=0
-    for i in range(len(paths)):
-        if(sensor>=len(paths) or model>=len(paths)):
-            break
-        if(x>sensory or y>modele):
-            break
-        FBfp[x][y]=co.FBFP(read_csv(paths[model]),read_csv(paths[sensor]),TH)
-        FBfn[x][y]=co.FBFN(read_csv(paths[model]),read_csv(paths[sensor]),TH)
-        x+=1
-        n[index]=paths[model]
-        index+=1
-        model+=1
-        if(model-1==modele):
-            model+=1
-            sensor=sensor+modele+1
+    indexN=0
+    modelA=True
+    modelB=False
+    modelC=False
+    
+    for i in range(lim):
+        if(modelA):
+            FBfp[x][y]=co.FBFP(ModelA.sim_sensors[y],Data.sensors[y],0)
+            FBfn[x][y]=co.FBFN(ModelA.sim_sensors[y],Data.sensors[y],0)
             y+=1
-            x=0    
+            n[indexN]='ModelA'
+            indexN+=1
+            if(y==len(Data.sensors)):
+                y=0
+                x+=1
+                modelA=False
+                modelB=True
+                continue
+        if(modelB):
+            FBfp[x][y]=co.FBFP(ModelB.sim_sensors[y],Data.sensors[y],0)
+            FBfn[x][y]=co.FBFN(ModelB.sim_sensors[y],Data.sensors[y],0)
+            y+=1
+            n[indexN]='ModelB'
+            indexN+=1
+            if(y==len(Data.sensors)):
+                y=0
+                x+=1
+                
+                modelB=False
+                modelC=True
+                continue
+        if(modelC):
+            FBfp[x][y]=co.FBFP(ModelC.sim_sensors[y],Data.sensors[y],0)
+            FBfn[x][y]=co.FBFN(ModelC.sim_sensors[y],Data.sensors[y],0)
+            y+=1
+            n[indexN]='ModelC'
+            indexN+=1
+            if(y==len(Data.sensors)):
+                y=0
+                x+=1
+                modelC=False                
+                continue
+   
+    
+    
+          
+            
+    
         
     A=np.array(FBfp)  
     B=np.array(FBfn)
@@ -100,7 +133,7 @@ def FractionalBiasFBdiagram(paths,sensory,modele,TH): #(tablica cieżek, liczba 
     
     colours=['red','blue','yellow','green','purple','orange']
     
-    for i in range(sensory):
+    for i in range(len(Data.sensors)):
         plt.plot(A[:,i],B[:,i],'ro',color=colours[i], label='ASP0'+str(i+1))
     
     #plt.plot(A[:,1],B[:,1],'bs',color='blue',label='ASP02')
@@ -108,9 +141,9 @@ def FractionalBiasFBdiagram(paths,sensory,modele,TH): #(tablica cieżek, liczba 
     plt.plot(a2,b1,'m-.',a1,b2,'m-.',a3,b3,'m-.',a,b,color='black')
     
     k=0
-    for i in range(sensory):
-        for j in range(modele):
-            plt.annotate(N[k], (A[j,i],B[j,i]))
+    for i in range(3):
+        for j in range(len(Data.sensors)):
+            plt.annotate(N[k], (A[i,j],B[i,j]))
             k+=1
     
     
@@ -126,33 +159,58 @@ def FractionalBiasFBdiagram(paths,sensory,modele,TH): #(tablica cieżek, liczba 
     
     return 1 
     
-def MGandVG(paths,sensory,modele,TH):
-    model=1
-    sensor=0
-    lim=sensory*modele
-    oVG=[[0 for i in range(sensory)] for j in range(modele)]
-    oMG=[[0 for i in range(sensory)] for j in range(modele)]
+def MGandVG(Data,ModelA,ModelB,ModelC,TH): 
+   
+    
+    lim=3*len(Data.sensors)
+    oVG=[[0 for i in range(len(Data.sensors))] for j in range(3)]
+    oMG=[[0 for i in range(len(Data.sensors))] for j in range(3)]
     n=['0' for i in range(lim)]
     
-   
-    index=0
     x=0
     y=0
-    for i in range(len(paths)):
-        if(sensor>=len(paths) or model>=len(paths)):
-            break
-        oVG[x][y]=co.VG(read_csv(paths[model]),read_csv(paths[sensor]),TH)
-        
-        oMG[x][y]=co.MG(read_csv(paths[model]),read_csv(paths[sensor]),TH)
-        x+=1
-        n[index]=paths[model]
-        index+=1
-        model+=1
-        if(model-1==modele):
-            model+=1
-            sensor=sensor+modele+1
+    indexN=0
+    modelA=True
+    modelB=False
+    modelC=False
+    
+    for i in range(lim):
+        if(modelA):
+            oVG[x][y]=co.VG(ModelA.sim_sensors[y],Data.sensors[y],0)
+            oMG[x][y]=co.MG(ModelA.sim_sensors[y],Data.sensors[y],0)
             y+=1
-            x=0    
+            n[indexN]='ModelA'
+            indexN+=1
+            if(y==len(Data.sensors)):
+                y=0
+                x+=1
+                modelA=False
+                modelB=True
+                continue
+        if(modelB):
+            oVG[x][y]=co.VG(ModelB.sim_sensors[y],Data.sensors[y],0)
+            oMG[x][y]=co.MG(ModelB.sim_sensors[y],Data.sensors[y],0)
+            y+=1
+            n[indexN]='ModelB'
+            indexN+=1
+            if(y==len(Data.sensors)):
+                y=0
+                x+=1
+                
+                modelB=False
+                modelC=True
+                continue
+        if(modelC):
+            oVG[x][y]=co.VG(ModelC.sim_sensors[y],Data.sensors[y],0)
+            oMG[x][y]=co.MG(ModelC.sim_sensors[y],Data.sensors[y],0)
+            y+=1
+            n[indexN]='ModelC'
+            indexN+=1
+            if(y==len(Data.sensors)):
+                y=0
+                x+=1
+                modelC=False                
+                continue   
         
     A=np.array(oMG)  
     B=np.array(oVG)
@@ -160,19 +218,23 @@ def MGandVG(paths,sensory,modele,TH):
     N=np.array(n)           #nazwy punktów
     #ax=plt.subplot(111)
     plt.figure(figsize=(10,10))
-    plt.loglog(A[:,0],B[:,0],'ro',color='red',label='ASP01',basex=2,basey=2)
-    if (sensory==2):
-        plt.plot(A[:,1],B[:,1],'bs',color='blue',label='ASP02')
+    
+    colours=['red','blue','yellow','green','purple','orange']
+    
+    for i in range(len(Data.sensors)):
+        plt.loglog(A[:,i],B[:,i],'ro',color=colours[i], label='ASP0'+str(i+1))
+        
+    
+    # plt.loglog(A[:,0],B[:,0],'ro',color='red',label='ASP01',basex=2,basey=2)
+    # if (sensory==2):
+    #     plt.plot(A[:,1],B[:,1],'bs',color='blue',label='ASP02')
     
     k=0
-    for i in range(sensory):
-        for j in range(modele):
-            plt.annotate(N[k], (A[j,i],B[j,i]))
+    for i in range(3):
+        for j in range(len(Data.sensors)):
+            plt.annotate(N[k], (A[i,j],B[i,j]))
             k+=1
-    #a1=np.arange(0.5,0.5,0)
-    #a2=np.arange(2,2,0)
-    #b=np.arange(1,17,1)
-    #plt.plot(a1,b,a2,b,color='black')
+    
     plt.axvline(x=0.5,linestyle='--',color='black')
     plt.axvline(x=2,color='black',linestyle='--')
     plt.axvline(x=1,color='black')
@@ -228,9 +290,9 @@ def BoxPlot(Model,Data,Wind,n):
     windy=z = [[None for j in range(n)] for i in range(40)] 
     x=[0 for i in range(n)]
     for i in range(lim):
-        data[i]=Data.iat[i,3]
-        model[i]=Model.iat[i,3]    
-        wind[i]=Wind.iat[i,4]
+        data[i]=Data.measurement[i]
+        model[i]=Model.sim_values[i]    
+        wind[i]=Wind.Wind_speed[i]
     wmin=wind[MinMax(wind)[0]]
     wmax=wind[MinMax(wind)[1]]
     step=round((wmax-wmin)/(n-1),3)
@@ -256,9 +318,7 @@ def BoxPlot(Model,Data,Wind,n):
     
     df = pd.DataFrame(windy,columns=x)
     
-    # ax.boxplot(np.log10(df))
-    # ax.set_yticks(np.arange(-1,2))
-    # ax.set_yticklabels(10.0**np.arange(-1,2))
+
     
     boxplot = df.boxplot(column=x)
     boxplot.set_xlabel('m/s')
@@ -279,9 +339,9 @@ def BoxPlot(Model,Data,Wind,n):
         
 
 
-Data= pd.read_csv('ASP01.txt', header =1, sep='\s*[;]\s*', index_col=False,engine='python' )             #Dane rzeczywiste 
-Model = pd.read_csv('ASP01_MODEL-C.txt', header =1, sep='\s*[;]\s*',index_col=False,engine='python' )   #Dane modelowe
-Wind=pd.read_csv('MS01.txt', header =1, sep='\s*[;]\s*', index_col=False,engine='python' )
+#Data= pd.read_csv('ASP01.txt', header =1, sep='\s*[;]\s*', index_col=False,engine='python' )             #Dane rzeczywiste 
+#Model = pd.read_csv('ASP01_MODEL-C.txt', header =1, sep='\s*[;]\s*',index_col=False,engine='python' )   #Dane modelowe
+#Wind=pd.read_csv('MS01.txt', header =1, sep='\s*[;]\s*', index_col=False,engine='python' )
 
 #print(Data)             sep='\s*[;]\s*'
 #print(Data.iat[0,3])
@@ -318,27 +378,46 @@ paths=['ASP01.txt','ASP01_MODEL-A.txt','ASP01_MODEL-B.txt','ASP01_MODEL-C.txt','
 
                      
 
-exp = experiment.Experiment(r'C:\Users\Kamil Prasuła\Desktop\Praktyki\DANE\BTEX_NOWY\BTEX\BTEX.txt')
+exp = experiment.Experiment(r'C:\Users\Kamil\Desktop\BTEX_NOWY\BTEX\BTEX.txt')
 
-sensor1=exp.trials[0].sensors[0]
+sensors=exp.trials[0]
+#print(len(sensors.sensors))
+sensor1=exp.trials[0].sensors[0]        #Data
+meteo1=exp.trials[0].meteo_stations[0]  #Wind 
+
 
 modelA = model.Model('Model-A', exp)
-modelA.sims[0].add_sensor(R'C:\Users\Kamil Prasuła\Desktop\Praktyki\DANE\BTEX_NOWY\MODEL-A\ASP01_MODEL-A.txt')
-modelA.sims[0].add_sensor(R'C:\Users\Kamil Prasuła\Desktop\Praktyki\DANE\BTEX_NOWY\MODEL-A\ASP02_MODEL-A.txt')
+modelA.sims[0].add_sensor(R'C:\Users\Kamil\Desktop\BTEX_NOWY\MODEL-A\ASP01_MODEL-A.txt')
+modelA.sims[0].add_sensor(R'C:\Users\Kamil\Desktop\BTEX_NOWY\MODEL-A\ASP02_MODEL-A.txt')
+
+sensorA=modelA.sims[0]
 sensor1A=modelA.sims[0].sim_sensors[0]
 sensor2A=modelA.sims[0].sim_sensors[1]
 
-meteo1=exp.trials[0].meteo_stations[0]
-wspeed1=meteo1.Wind_speed           #Wind
-print(wspeed1)
+
+ 
 
 
 modelB = model.Model('Model-B', exp)
-modelB.sims[0].add_sensor(R'C:\Users\Kamil Prasuła\Desktop\Praktyki\DANE\BTEX_NOWY\MODEL-B\ASP01_MODEL-B.txt')
-modelB.sims[0].add_sensor(R'C:\Users\Kamil Prasuła\Desktop\Praktyki\DANE\BTEX_NOWY\MODEL-B\ASP02_MODEL-B.txt')
+modelB.sims[0].add_sensor(R'C:\Users\Kamil\Desktop\BTEX_NOWY\MODEL-B\ASP01_MODEL-B.txt')
+modelB.sims[0].add_sensor(R'C:\Users\Kamil\Desktop\BTEX_NOWY\MODEL-B\ASP02_MODEL-B.txt')
+
+sensorB=modelB.sims[0]
+sensor1B=modelB.sims[0].sim_sensors[0]
+sensor2B=modelB.sims[0].sim_sensors[1]
+
+
 
 modelC = model.Model('Model-C', exp)
-modelC.sims[0].add_sensor(R'C:\Users\Kamil Prasuła\Desktop\Praktyki\DANE\BTEX_NOWY\MODEL-C\ASP01_MODEL-C.txt')
-modelC.sims[0].add_sensor(R'C:\Users\Kamil Prasuła\Desktop\Praktyki\DANE\BTEX_NOWY\MODEL-C\ASP02_MODEL-C.txt')
+modelC.sims[0].add_sensor(R'C:\Users\Kamil\Desktop\BTEX_NOWY\MODEL-C\ASP01_MODEL-C.txt')
+modelC.sims[0].add_sensor(R'C:\Users\Kamil\Desktop\BTEX_NOWY\MODEL-C\ASP02_MODEL-C.txt')
+
+sensorC=modelC.sims[0]
+sensor1C=modelC.sims[0].sim_sensors[0]
+sensor2C=modelC.sims[0].sim_sensors[1]
 
 
+#quantile_quantile_plots(sensor1,sensor1A,sensor1B,sensor1C)
+#BoxPlot(sensor1C, sensor1, meteo1,5)
+#FractionalBiasFBdiagram(sensors,sensorA,sensorB,sensorC, 0)
+MGandVG(sensors,sensorA,sensorB,sensorC, 0)
