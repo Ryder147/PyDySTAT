@@ -8,6 +8,7 @@ import matplotlib
 import sys
 sys.path.append('../')
 from calculations import coefficients as co
+from classes import trial, simulation, experiment, model
 
 def read_csv(path):
     return pd.read_csv(path, header =1, sep='\s*[;]\s*', index_col=False)
@@ -220,7 +221,7 @@ def sortuj_wstaw(tab,tab1,tab2):
     return tab,tab1,tab2
 
 def BoxPlot(Model,Data,Wind,n):
-    lim = len(Model['Modeled values'])
+    lim = len(Model.sim_values)
     data=[0 for i in range(lim)]
     model=[0 for i in range(lim)]
     wind=[0 for i in range(lim)]
@@ -278,9 +279,9 @@ def BoxPlot(Model,Data,Wind,n):
         
 
 
-Data= pd.read_csv('ASP01.txt', header =1, sep='\s*[;]\s*', index_col=False )             #Dane rzeczywiste 
-Model = pd.read_csv('ASP01_MODEL-C.txt', header =1, sep='\s*[;]\s*',index_col=False )   #Dane modelowe
-Wind=pd.read_csv('MS01.txt', header =1, sep='\s*[;]\s*', index_col=False )
+Data= pd.read_csv('ASP01.txt', header =1, sep='\s*[;]\s*', index_col=False,engine='python' )             #Dane rzeczywiste 
+Model = pd.read_csv('ASP01_MODEL-C.txt', header =1, sep='\s*[;]\s*',index_col=False,engine='python' )   #Dane modelowe
+Wind=pd.read_csv('MS01.txt', header =1, sep='\s*[;]\s*', index_col=False,engine='python' )
 
 #print(Data)             sep='\s*[;]\s*'
 #print(Data.iat[0,3])
@@ -291,11 +292,53 @@ paths=['ASP01.txt','ASP01_MODEL-A.txt','ASP01_MODEL-B.txt','ASP01_MODEL-C.txt','
 #print(Wind.iloc[:,4])
 
 
-FractionalBiasFBdiagram(paths, 2, 3,0)
+#FractionalBiasFBdiagram(paths, 2, 3,0)
 #quantilpaths=['ASP01.txt','ASP01_MODEL-A.txt','ASP01_MODEL-B.txt','ASP01_MODEL-C.txt']
 #quantile_quantile_plots(quantilpaths)
 #MGandVG(paths, 2, 3,0)
 #BoxPlot(Model, Data, Wind,5)
 
+
+
+# exp1= experiment.Experiment(r'C:\Users\Kamil Prasuła\Desktop\Praktyki\DANE\BTEX_NOWY\BTEX\BTEX.txt')
+
+# sensor_exp=exp1.trials[0].sensors[0]
+# print(sensor_exp.measurement)       #Data
+# print('-----------')
+# modelA= model.Model('model1a', exp1)
+
+# modelA.sims[0].add_sensor(R'C:\Users\Kamil Prasuła\Desktop\Praktyki\DANE\BTEX_NOWY\MODEL-A\ASP01_MODEL-A.txt')
+# sensorA=modelA.sims[0].sim_sensors[0]
+# print(sensorA.sim_values)           #Model
+# print('-----------------')
+# meteo1=exp1.trials[0].meteo_stations[0]
+# wspeed1=meteo1.Wind_speed           #Wind
+# print(wspeed1)
+
+
+                     
+
+exp = experiment.Experiment(r'C:\Users\Kamil Prasuła\Desktop\Praktyki\DANE\BTEX_NOWY\BTEX\BTEX.txt')
+
+sensor1=exp.trials[0].sensors[0]
+
+modelA = model.Model('Model-A', exp)
+modelA.sims[0].add_sensor(R'C:\Users\Kamil Prasuła\Desktop\Praktyki\DANE\BTEX_NOWY\MODEL-A\ASP01_MODEL-A.txt')
+modelA.sims[0].add_sensor(R'C:\Users\Kamil Prasuła\Desktop\Praktyki\DANE\BTEX_NOWY\MODEL-A\ASP02_MODEL-A.txt')
+sensor1A=modelA.sims[0].sim_sensors[0]
+sensor2A=modelA.sims[0].sim_sensors[1]
+
+meteo1=exp.trials[0].meteo_stations[0]
+wspeed1=meteo1.Wind_speed           #Wind
+print(wspeed1)
+
+
+modelB = model.Model('Model-B', exp)
+modelB.sims[0].add_sensor(R'C:\Users\Kamil Prasuła\Desktop\Praktyki\DANE\BTEX_NOWY\MODEL-B\ASP01_MODEL-B.txt')
+modelB.sims[0].add_sensor(R'C:\Users\Kamil Prasuła\Desktop\Praktyki\DANE\BTEX_NOWY\MODEL-B\ASP02_MODEL-B.txt')
+
+modelC = model.Model('Model-C', exp)
+modelC.sims[0].add_sensor(R'C:\Users\Kamil Prasuła\Desktop\Praktyki\DANE\BTEX_NOWY\MODEL-C\ASP01_MODEL-C.txt')
+modelC.sims[0].add_sensor(R'C:\Users\Kamil Prasuła\Desktop\Praktyki\DANE\BTEX_NOWY\MODEL-C\ASP02_MODEL-C.txt')
 
 

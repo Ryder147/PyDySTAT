@@ -503,4 +503,31 @@ def MOEfn(sensor_out_model, sensor_exp, TH):
 # measure of effectivness (false positive)
 def MOEfp(sensor_out_model, sensor_exp, TH):
     MOEFP=(2-FBFN(sensor_out_model, sensor_exp, TH)-FBFP(sensor_out_model, sensor_exp, TH))/(2-FB(sensor_out_model, sensor_exp, TH))    
+<<<<<<< Updated upstream
     return round(MOEFP,2)
+=======
+    return round(MOEFP,2)
+
+
+# exp = experiment.Experiment(r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\BTEX\BTEX.txt')
+# sensor_exp = exp.trials[0].sensors[0]
+# sensor_out_model = sim_sensor_output.Sim_Sensor_Output(r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\MODEL-C\ASP01_MODEL-C.txt')
+
+# print('Współczynnik FB=  ',FB(sensor_out_model, sensor_exp, 50))
+# print('Współczynnik FBFN=',FBFN(sensor_out_model, sensor_exp, 0))
+# print('Współczynnik FBFP=',FBFP(sensor_out_model, sensor_exp, 0))
+# print('Sprawdzenie FB=FBFN-FBFP= ',FBFN(sensor_out_model, sensor_exp, 0)-FBFP(sensor_out_model, sensor_exp, 0))
+# print('Współczynnik MG=  ',MG(sensor_out_model, sensor_exp, 0))
+# print('Współczynnik NMSE=',NMSE(sensor_out_model, sensor_exp, 0))
+# print('Współczynnik R=   ',R(sensor_out_model, sensor_exp, 0))
+# print('Współczynnik VG=  ', VG(sensor_out_model, sensor_exp, 50))
+# print('Współczynnik FACX=',FACX(sensor_out_model, sensor_exp, 2,50))
+# print('Współczynnik NSD= ',NSD(sensor_out_model, sensor_exp, 0))
+# print('Współczynnik NRMSE=',NRMSE(sensor_out_model, sensor_exp, 0))
+# print('Współczynnik Afn=  ',Afn(sensor_out_model, sensor_exp, 0))
+# print('Współczynnik Afp=  ',Afp(sensor_out_model, sensor_exp, 0))
+# print('Współczynnik FMS=  ',FMS(sensor_out_model, sensor_exp, 0))
+# print('Współczynnik MOEfn=',MOEfn(sensor_out_model, sensor_exp, 0))
+# print('Współczynnik MOEfp=',MOEfp(sensor_out_model, sensor_exp, 0))
+# print('Iloczyn Ap Ao =    ',iloczynApAo(sensor_out_model, sensor_exp, 0))
+>>>>>>> Stashed changes
