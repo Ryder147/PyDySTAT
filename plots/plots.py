@@ -45,6 +45,8 @@ def quantile_quantile_plots(Dane,ModelA,ModelB,ModelC):
     ax3.set_xlabel('Model-C Conc. (pptv)')
     ax3.set_ylabel('Observed Conc. (pptv)')
     
+    plt.savefig('results/quantile_quantile_plot.png')
+    
     plt.show()
 
 
@@ -154,6 +156,8 @@ def FractionalBiasFBdiagram(Data,ModelA,ModelB,ModelC,TH):
     plt.legend()
     ax.set_xlabel('FBfn')
     ax.set_ylabel('FBfp')
+    
+    plt.savefig('results/FractionalBiasFBdiagram.png')
    
     plt.show()
     
@@ -243,7 +247,11 @@ def MGandVG(Data,ModelA,ModelB,ModelC,TH):
     plt.legend()
     plt.xlabel('MG')
     plt.ylabel('VG')
+    
+    plt.savefig('results/MGandVG.png')
+    
     plt.show()
+    
     return 1
 
 
@@ -331,6 +339,9 @@ def BoxPlot(Model,Data,Wind,n):
     plt.plot([0,10],[1,1],color='black')
     plt.plot([0,10],[2,2],color='black',linestyle='--')
     plt.plot([0,10],[0.5,0.5],color='black',linestyle='--')
+    
+    plt.savefig('results/BoxPlot.png')
+    
     plt.show()
     
     return 1

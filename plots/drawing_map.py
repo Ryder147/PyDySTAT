@@ -26,3 +26,5 @@ def draw_map(experiment, trial):
     ax.set_xlim(BBox[0],BBox[1])
     ax.set_ylim(BBox[2],BBox[3])
     ax.imshow(map_im, zorder=0, extent = BBox, aspect= 'equal')
+    
+    plt.savefig('results/map.png')

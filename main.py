@@ -5,21 +5,21 @@
 from classes import model, experiment
 from calculations import coefficients as co
 from calculations import puff_movement_characteristics as pmc
-from plots import drawing_map
 from plots import puff_movement as pm
+from plots import drawing_map, plots
 
 # %%    1. wczytanie experimentow i modeli (+ sensory modeli)
 
 exp_btex_path = r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\BTEX\BTEX.txt'
 
 modelA_sensor1_path = r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\MODEL-A\ASP01_MODEL-A.txt'
-modelA_sensor2_path = r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\MODEL-A\ASP01_MODEL-A.txt'
+modelA_sensor2_path = r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\MODEL-A\ASP02_MODEL-A.txt'
 
 modelB_sensor1_path = r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\MODEL-B\ASP01_MODEL-B.txt'
-modelB_sensor2_path = r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\MODEL-B\ASP01_MODEL-B.txt'
+modelB_sensor2_path = r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\MODEL-B\ASP02_MODEL-B.txt'
 
 modelC_sensor1_path = r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\MODEL-C\ASP01_MODEL-C.txt'
-modelC_sensor2_path = r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\MODEL-C\ASP01_MODEL-C.txt'
+modelC_sensor2_path = r'C:\Users\orgin\Desktop\studia\praktyki\BTEX_NOWY\MODEL-C\ASP02_MODEL-C.txt'
 
 exp = experiment.Experiment(exp_btex_path)
 modelA = model.Model('Model-A', exp)
@@ -63,10 +63,10 @@ print('Iloczyn               Ap Ao = ',co.iloczynApAo(sensor_out_model, sensor_e
 
 # %%    3. charakterystki ruchu chumry -> calculations.puff_movement_characteristics.py
 
-sensor_exp = exp.trials[0].sensors[0]
-sensor_output_A = modelA.sims[0].sim_sensors[0]
-sensor_output_B = modelB.sims[0].sim_sensors[0]
-sensor_output_C = modelC.sims[0].sim_sensors[0]
+sensor_exp = exp.trials[0].sensors[1]
+sensor_output_A = modelA.sims[0].sim_sensors[1]
+sensor_output_B = modelB.sims[0].sim_sensors[1]
+sensor_output_C = modelC.sims[0].sim_sensors[1]
 
 puff_mov_df = pmc.puff_mov_char(sensor_exp,
                                 sensor_output_A,
@@ -85,10 +85,10 @@ drawing_map.draw_map(exp, trial)
 
 # %%    5. wykres charakterystyk z punktu 3 -> plots.puff_movement.py
 
-sensor_exp = exp.trials[0].sensors[0]
-sensor_output_A = modelA.sims[0].sim_sensors[0]
-sensor_output_B = modelB.sims[0].sim_sensors[0]
-sensor_output_C = modelC.sims[0].sim_sensors[0]
+sensor_exp = exp.trials[0].sensors[1]
+sensor_output_A = modelA.sims[0].sim_sensors[1]
+sensor_output_B = modelB.sims[0].sim_sensors[1]
+sensor_output_C = modelC.sims[0].sim_sensors[1]
 
 # skala liniowa
 # puff_mov_df rysuje plot oraz
@@ -111,9 +111,40 @@ pm.draw_plots(sensor_exp,
               log = True)  # domyslnie False
 
 
-# %%    6. plots.plots.py
+# %%    6. plots.plots.py -> quantile_quantile_plots
 
-# ---quantile_quantile_plots
-# ---FractionalBiasFBdiagram
-# ---MGandVG
-# ---BoxPlot
+sensor_exp = exp.trials[0].sensors[0]
+sensor_output_A = modelA.sims[0].sim_sensors[0]
+sensor_output_B = modelB.sims[0].sim_sensors[0]
+sensor_output_C = modelC.sims[0].sim_sensors[0]
+
+plots.quantile_quantile_plots(sensor_exp, sensor_output_A, sensor_output_B, sensor_output_C)
+
+# %%    7. plots.plots.py -> BoxPlot
+
+sensor_exp = exp.trials[0].sensors[0]
+sensor_output_C = modelC.sims[0].sim_sensors[0]
+meteo_station = exp.trials[0].meteo_stations[0]
+parts_n = 5     # liczba pudełek na wykresie
+
+plots.BoxPlot(sensor_output_C, sensor_exp, meteo_station, parts_n)
+
+# %%    8. plots.plots.py -> FractionalBiasFBdiagram
+
+trial = exp.trials[0]
+sim_A = modelA.sims[0]
+sim_B = modelB.sims[0]
+sim_C = modelC.sims[0]
+TH = 0
+
+plots.FractionalBiasFBdiagram(trial, sim_A, sim_B, sim_C, TH)
+
+# %%    9. plots.plots.py -> MGandVG
+
+trial = exp.trials[0]
+sim_A = modelA.sims[0]
+sim_B = modelB.sims[0]
+sim_C = modelC.sims[0]
+TH = 0
+
+plots.MGandVG(trial, sim_A, sim_B, sim_C, TH)
